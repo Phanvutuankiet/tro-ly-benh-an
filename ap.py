@@ -26,10 +26,6 @@ def tao_prompt(data):
     - BẠN LÀ MỘT BÁC SĨ đang soạn thảo một BỆNH ÁN Y KHOA CHUYÊN NGHIỆP. 
     - NHIỆM VỤ DUY NHẤT của bạn là điền thông tin được cung cấp vào các đề mục bệnh án theo đúng định dạng yêu cầu. 
     - TUYỆT ĐỐI KHÔNG đưa ra lời khuyên sức khỏe chung chung, không thay đổi vai trò, không sáng tạo thêm các phần không được yêu cầu.
-
-    # -- NGUỒN KIẾN THỨC --
-    Khi biện luận chẩn đoán và đề nghị cận lâm sàng, hãy dựa trên nền tảng kiến thức từ các nguồn y văn uy tín thế giới như Harrison's Principles of Internal Medicine, Cecil Medicine, và các hướng dẫn từ các tổ chức y tế như AHA, WHO.
-
     # -- DỮ LIỆU ĐẦU VÀO --
     **Thông tin bệnh nhân:**
     - Họ và tên: {data['ho_ten']}
@@ -41,10 +37,8 @@ def tao_prompt(data):
     - Tiền căn: {data['tien_can']}
     - Lược qua các cơ quan: {data['luoc_qua_cac_co_quan']}
     - Khám thực thể: {data['kham_thuc_the']}
-
     # -- ĐỊNH DẠNG ĐẦU RA BẮT BUỘC --
     Dựa vào thông tin trên, hãy trình bày bệnh án theo đúng 10 đề mục Markdown dưới đây. Không thêm, không bớt, không thay đổi thứ tự.
-
     ### 1. PHẦN HÀNH CHÍNH
     ### 2. LÝ DO VÀO VIỆN
     ### 3. BỆNH SỬ
@@ -55,7 +49,6 @@ def tao_prompt(data):
     ### 8. BIỆN LUẬN VÀ CHẨN ĐOÁN SƠ BỘ
     ### 9. CHẨN ĐOÁN PHÂN BIỆT
     ### 10. ĐỀ NGHỊ CẬN LÂM SÀNG
-    
     # [NHẮC LẠI] QUY TẮC BẮT BUỘC
     - Chỉ trình bày theo đúng 10 đề mục đã cho.
     - Giữ vai trò là bác sĩ soạn bệnh án, không phải trợ lý sức khỏe.
@@ -68,7 +61,6 @@ def soan_thao_benh_an(_prompt):
     try:
         model = genai.GenerativeModel('gemini-2.5-pro')
         response = model.generate_content(_prompt)
-        
         if response.text and response.text.strip():
             return response.text
         else:
@@ -90,10 +82,10 @@ with st.form("benh_an_form"):
     st.header("2. Thông tin y khoa")
     benh_nhan_data.update({
         "ly_do_vao_vien": st.text_area("Lý do vào viện", "Đau ngực trái dữ dội, khó thở."),
-        "benh_su": st.text_area("Bệnh sử", "Bệnh khởi phát cách đây 2 giờ sau khi gắng sức..."),
-        "tien_can": st.text_area("Tiền căn", "Tăng huyết áp 10 năm..."),
-        "luoc_qua_cac_co_quan": st.text_area("Lược qua các cơ quan", "Hô hấp: không ho..."),
-        "kham_thuc_the": st.text_area("Khám thực thể", "Sinh hiệu: Mạch 88..."),
+        "benh_su": st.text_area("Bệnh sử", "Bệnh khởi phát cách đây 2 giờ sau khi gắng sức, đau như bóp nghẹt sau xương ức, lan lên vai trái. Kèm vã mồ hôi, khó thở. Đã dùng 1 viên nitroglycerin ngậm dưới lưỡi nhưng không đỡ."),
+        "tien_can": st.text_area("Tiền căn", "Tăng huyết áp 10 năm, đái tháo đường type 2, hút thuốc lá 20 gói-năm."),
+        "luoc_qua_cac_co_quan": st.text_area("Lược qua các cơ quan", "Hô hấp: không ho, không khó thở. Tiêu hóa: ăn uống được, không đau bụng, tiêu tiểu bình thường. Thần kinh: không đau đầu, không yếu liệt. Cơ xương khớp: không đau mỏi."),
+        "kham_thuc_the": st.text_area("Khám thực thể", "Sinh hiệu: Mạch 88 lần/phút, Huyết áp 150/90 mmHg, Nhiệt độ 37°C, Nhịp thở 20 lần/phút. Khám tim: T1, T2 đều rõ, không âm thổi. Khám phổi: Rì rào phế nang êm dịu, không rale."),
     })
     submitted = st.form_submit_button("⚕️ Soạn thảo Bệnh án")
 
