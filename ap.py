@@ -24,6 +24,9 @@ with st.form("benh_an_form"):
     with col3:
         gioi_tinh = st.selectbox("Giới tính", ["Nam", "Nữ", "Khác"])
 
+    # THAY ĐỔI 1: Thêm ô nhập "Nghề nghiệp"
+    nghe_nghiep = st.text_input("Nghề nghiệp", "Công nhân", help="Nhập nghề nghiệp hiện tại của bệnh nhân.")
+
     st.header("2. Thông tin y khoa")
     ly_do_vao_vien = st.text_area("Lý do vào viện", "Đau ngực trái dữ dội, khó thở.", help="Bạn có thể tự do chỉnh sửa hoặc xóa nội dung ví dụ trong ô này.")
     benh_su = st.text_area("Bệnh sử", "Bệnh khởi phát cách đây 2 giờ sau khi gắng sức, đau như bóp nghẹt sau xương ức, lan lên vai trái. Kèm vã mồ hôi, khó thở. Đã dùng 1 viên nitroglycerin ngậm dưới lưỡi nhưng không đỡ.", help="Bạn có thể tự do chỉnh sửa hoặc xóa nội dung ví dụ trong ô này.")
@@ -35,7 +38,7 @@ with st.form("benh_an_form"):
 
 # --- XỬ LÝ VÀ HIỂN THỊ KẾT QUẢ ---
 if submitted:
-    # ---- PROMPT ĐÃ ĐƯỢC CẬP NHẬT VỚI MỤC CHẨN ĐOÁN PHÂN BIỆT ----
+    # THAY ĐỔI 2: Cập nhật prompt với thông tin "Nghề nghiệp"
     prompt_template = f"""
     # -- BỐI CẢNH VÀ VAI TRÒ --
     Bạn là một bác sĩ nội trú cẩn thận và dày dạn kinh nghiệm, đang tiến hành biện luận để trình bày một bệnh án.
@@ -49,6 +52,7 @@ if submitted:
     - Họ và tên: {ho_ten}
     - Tuổi: {tuoi}
     - Giới tính: {gioi_tinh}
+    - Nghề nghiệp: {nghe_nghiep}
     - Lý do vào viện: {ly_do_vao_vien}
     - Bệnh sử: {benh_su}
     - Tiền căn: {tien_can}
@@ -60,6 +64,8 @@ if submitted:
     Dựa vào thông tin trên, hãy trình bày bệnh án theo đúng định dạng Markdown dưới đây.
 
     ### 1. PHẦN HÀNH CHÍNH
+    (Điền thông tin hành chính của bệnh nhân, bao gồm cả nghề nghiệp)
+
     ### 2. LÝ DO VÀO VIỆN
     ### 3. BỆNH SỬ
     ### 4. TIỀN CĂN
@@ -71,7 +77,7 @@ if submitted:
     ### 8. BIỆN LUẬN VÀ CHẨN ĐOÁN SƠ BỘ
     Để đưa ra chẩn đoán, hãy suy luận theo các bước sau:
     - **Phân tích triệu chứng:** Các triệu chứng cơ năng và thực thể chính của bệnh nhân là gì?
-    - **Phân tích yếu tố nguy cơ:** Bệnh nhân có những yếu tố nguy cơ nào từ tiền căn?
+    - **Phân tích yếu tố nguy cơ:** Bệnh nhân có những yếu tố nguy cơ nào từ tiền căn và nghề nghiệp?
     - **Biện luận và Chẩn đoán sơ bộ:** Kết hợp các yếu tố trên và dựa vào kiến thức y văn, hãy biện luận để đưa ra chẩn đoán sơ bộ có khả năng nhất.
 
     ### 9. CHẨN ĐOÁN PHÂN BIỆT
