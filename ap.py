@@ -75,7 +75,7 @@ def tao_prompt(data):
 def soan_thao_benh_an(_prompt):
     """Hàm gọi API Gemini để soạn bệnh án, kết quả sẽ được cache lại."""
     try:
-        model = genai.GenerativeModel('gemini-1.5-pro-latest') # Sử dụng model mới để có kết quả tốt hơn
+        model = genai.GenerativeModel('gemini-2.5-pro') # Sử dụng model mới để có kết quả tốt hơn
         response = model.generate_content(_prompt)
         return response.text
     except Exception as e:
@@ -121,3 +121,4 @@ if submitted:
             if st.button("Sao chép nội dung Bệnh án"):
                 pyperclip.copy(ket_qua_benh_an)
                 st.success("Đã sao chép vào clipboard!")
+
