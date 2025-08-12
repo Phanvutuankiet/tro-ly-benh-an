@@ -1,45 +1,23 @@
 import streamlit as st
 import google.generativeai as genai
-import os
+import pyperclip # Thư viện để sao chép vào clipboard
 
 # --- CẤU HÌNH BAN ĐẦU ---
-st.set_page_config(page_title="Trợ lý Soạn thảo Bệnh án", page_icon="🩺")
+st.set_page_config(page_title="Trợ lý Soạn thảo Bệnh án", page_icon="🩺", layout="wide")
 st.title("🩺 Trợ lý Soạn thảo Bệnh án")
-st.write("Nhập thông tin bệnh nhân vào các ô bên dưới và AI sẽ giúp bạn soạn một bản nháp bệnh án.")
+st.write("Nhập thông tin bệnh nhân, AI sẽ giúp bạn soạn một bản nháp bệnh án hoàn chỉnh, có phân tích và biện luận.")
 
+# --- TỐI ƯU 1: Thiết lập API key một cách an toàn ---
 try:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 except Exception:
-    st.error("Vui lòng thiết lập GOOGLE_API_KEY trong phần Secrets của Streamlit để ứng dụng hoạt động!")
+    st.error("Lỗi: Vui lòng thiết lập `GOOGLE_API_KEY` trong phần Secrets của Streamlit để ứng dụng hoạt động!")
     st.stop()
 
-# --- GIAO DIỆN NHẬP LIỆU ---
-with st.form("benh_an_form"):
-    st.header("1. Thông tin bệnh nhân")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        ho_ten = st.text_input("Họ và tên", "Bệnh nhân A", help="Nhập họ tên hoặc mã số bệnh nhân.")
-    with col2:
-        tuoi = st.text_input("Tuổi", "52", help="Nhập tuổi của bệnh nhân.")
-    with col3:
-        gioi_tinh = st.selectbox("Giới tính", ["Nam", "Nữ", "Khác"])
-
-    # THAY ĐỔI 1: Thêm ô nhập "Nghề nghiệp"
-    nghe_nghiep = st.text_input("Nghề nghiệp", "Công nhân", help="Nhập nghề nghiệp hiện tại của bệnh nhân.")
-
-    st.header("2. Thông tin y khoa")
-    ly_do_vao_vien = st.text_area("Lý do vào viện", "Đau ngực trái dữ dội, khó thở.", help="Bạn có thể tự do chỉnh sửa hoặc xóa nội dung ví dụ trong ô này.")
-    benh_su = st.text_area("Bệnh sử", "Bệnh khởi phát cách đây 2 giờ sau khi gắng sức, đau như bóp nghẹt sau xương ức, lan lên vai trái. Kèm vã mồ hôi, khó thở. Đã dùng 1 viên nitroglycerin ngậm dưới lưỡi nhưng không đỡ.", help="Bạn có thể tự do chỉnh sửa hoặc xóa nội dung ví dụ trong ô này.")
-    tien_can = st.text_area("Tiền căn", "Tăng huyết áp 10 năm, đái tháo đường type 2, hút thuốc lá 20 gói-năm.", help="Bạn có thể tự do chỉnh sửa hoặc xóa nội dung ví dụ trong ô này.")
-    luoc_qua_cac_co_quan = st.text_area("Lược qua các cơ quan", "Hô hấp: không ho, không khó thở. Tiêu hóa: ăn uống được, không đau bụng, tiêu tiểu bình thường. Thần kinh: không đau đầu, không yếu liệt. Cơ xương khớp: không đau mỏi.", help="Ghi nhận các triệu chứng ở các cơ quan khác.")
-    kham_thuc_the = st.text_area("Khám thực thể", "Sinh hiệu: Mạch 88 lần/phút, Huyết áp 150/90 mmHg, Nhiệt độ 37°C, Nhịp thở 20 lần/phút. Khám tim: T1, T2 đều rõ, không âm thổi. Khám phổi: Rì rào phế nang êm dịu, không rale.", help="Ghi nhận các dấu hiệu khám thực thể tại giường.")
-
-    submitted = st.form_submit_button("⚕️ Soạn thảo Bệnh án")
-
-# --- XỬ LÝ VÀ HIỂN THỊ KẾT QUẢ ---
-if submitted:
-    # THAY ĐỔI 2: Cập nhật prompt với thông tin "Nghề nghiệp"
-    prompt_template = f"""
+# --- TỐI ƯU 2: Tách logic tạo prompt ra một hàm riêng để dễ quản lý ---
+def tao_prompt(data):
+    """Tạo chuỗi prompt hoàn chỉnh từ dữ liệu bệnh nhân."""
+    return f"""
     # -- BỐI CẢNH VÀ VAI TRÒ --
     Bạn là một bác sĩ nội trú cẩn thận và dày dạn kinh nghiệm, đang tiến hành biện luận để trình bày một bệnh án.
     Nhiệm vụ của bạn là nhận thông tin thô của bệnh nhân và cấu trúc lại thành một bệnh án hoàn chỉnh, logic và chuyên nghiệp.
@@ -49,15 +27,15 @@ if submitted:
 
     # -- DỮ LIỆU ĐẦU VÀO --
     **Thông tin bệnh nhân:**
-    - Họ và tên: {ho_ten}
-    - Tuổi: {tuoi}
-    - Giới tính: {gioi_tinh}
-    - Nghề nghiệp: {nghe_nghiep}
-    - Lý do vào viện: {ly_do_vao_vien}
-    - Bệnh sử: {benh_su}
-    - Tiền căn: {tien_can}
-    - Lược qua các cơ quan: {luoc_qua_cac_co_quan}
-    - Khám thực thể: {kham_thuc_the}
+    - Họ và tên: {data['ho_ten']}
+    - Tuổi: {data['tuoi']}
+    - Giới tính: {data['gioi_tinh']}
+    - Nghề nghiệp: {data['nghe_nghiep']}
+    - Lý do vào viện: {data['ly_do_vao_vien']}
+    - Bệnh sử: {data['benh_su']}
+    - Tiền căn: {data['tien_can']}
+    - Lược qua các cơ quan: {data['luoc_qua_cac_co_quan']}
+    - Khám thực thể: {data['kham_thuc_the']}
 
     # -- NHIỆM VỤ VÀ ĐỊNH DẠNG ĐẦU RA --
     **Yêu cầu thực hiện:**
@@ -92,11 +70,54 @@ if submitted:
     - Chỉ suy luận dựa trên thông tin được cung cấp, không tự ý thêm thắt dữ liệu.
     """
 
+# --- TỐI ƯU 3: Dùng cache để lưu kết quả, tránh gọi API lặp lại ---
+@st.cache_data(show_spinner=False) # Ẩn spinner mặc định của cache
+def soan_thao_benh_an(_prompt):
+    """Hàm gọi API Gemini để soạn bệnh án, kết quả sẽ được cache lại."""
+    try:
+        model = genai.GenerativeModel('gemini-1.5-pro-latest') # Sử dụng model mới để có kết quả tốt hơn
+        response = model.generate_content(_prompt)
+        return response.text
+    except Exception as e:
+        return f"Đã có lỗi xảy ra khi kết nối tới AI: {e}"
+
+# --- GIAO DIỆN NHẬP LIỆU ---
+with st.form("benh_an_form"):
+    st.header("1. Thông tin bệnh nhân")
+    col1, col2, col3 = st.columns(3)
+    benh_nhan_data = {
+        "ho_ten": col1.text_input("Họ và tên", "Bệnh nhân A"),
+        "tuoi": col2.text_input("Tuổi", "52"),
+        "gioi_tinh": col3.selectbox("Giới tính", ["Nam", "Nữ", "Khác"]),
+        "nghe_nghiep": st.text_input("Nghề nghiệp", "Công nhân"),
+    }
+
+    st.header("2. Thông tin y khoa")
+    benh_nhan_data.update({
+        "ly_do_vao_vien": st.text_area("Lý do vào viện", "Đau ngực trái dữ dội, khó thở."),
+        "benh_su": st.text_area("Bệnh sử", "Bệnh khởi phát cách đây 2 giờ sau khi gắng sức, đau như bóp nghẹt sau xương ức, lan lên vai trái. Kèm vã mồ hôi, khó thở. Đã dùng 1 viên nitroglycerin ngậm dưới lưỡi nhưng không đỡ."),
+        "tien_can": st.text_area("Tiền căn", "Tăng huyết áp 10 năm, đái tháo đường type 2, hút thuốc lá 20 gói-năm."),
+        "luoc_qua_cac_co_quan": st.text_area("Lược qua các cơ quan", "Hô hấp: không ho. Tiêu hóa: ăn uống được, không đau bụng. Thần kinh: không đau đầu."),
+        "kham_thuc_the": st.text_area("Khám thực thể", "Sinh hiệu: Mạch 88 lần/phút, Huyết áp 150/90 mmHg, Nhiệt độ 37°C, Nhịp thở 20 lần/phút. Tim: T1, T2 đều rõ. Phổi: Rì rào phế nang êm dịu."),
+    })
+
+    submitted = st.form_submit_button("⚕️ Soạn thảo Bệnh án")
+
+# --- XỬ LÝ VÀ HIỂN THỊ KẾT QUẢ ---
+if submitted:
+    # Tạo prompt từ dữ liệu đã thu thập
+    final_prompt = tao_prompt(benh_nhan_data)
+    
     st.header("Bệnh án được AI soạn thảo:")
     with st.spinner("AI đang phân tích và soạn thảo, vui lòng chờ..."):
-        try:
-            model = genai.GenerativeModel('gemini-2.5-pro')
-            response = model.generate_content(prompt_template)
-            st.markdown(response.text)
-        except Exception as e:
-            st.error(f"Đã có lỗi xảy ra khi kết nối tới AI: {e}")
+        # Gọi hàm đã được cache
+        ket_qua_benh_an = soan_thao_benh_an(final_prompt)
+        
+        # Hiển thị kết quả
+        st.markdown(ket_qua_benh_an)
+
+        # --- TỐI ƯU 4: Thêm nút sao chép kết quả ---
+        if "Đã có lỗi xảy ra" not in ket_qua_benh_an:
+            if st.button("Sao chép nội dung Bệnh án"):
+                pyperclip.copy(ket_qua_benh_an)
+                st.success("Đã sao chép vào clipboard!")
