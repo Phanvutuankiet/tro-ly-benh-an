@@ -1,7 +1,8 @@
 # ui.py
 
 import streamlit as st
-from streamlit_js_eval import copy_to_clipboard
+# THAY ĐỔI: Import thêm hàm 'button_did_it_work'
+from streamlit_js_eval import copy_to_clipboard, button_did_it_work
 
 def render_form():
     """Vẽ form nhập liệu và trả về dữ liệu khi người dùng nhấn submit."""
@@ -16,7 +17,6 @@ def render_form():
         }
 
         st.header("2. Thông tin y khoa")
-        # **KHÔI PHỤC LẠI NỘI DUNG GIỚI THIỆU CHI TIẾT**
         benh_nhan_data.update({
             "ly_do_vao_vien": st.text_area("Lý do vào viện", "Đau ngực trái dữ dội, khó thở."),
             "benh_su": st.text_area("Bệnh sử", "Bệnh khởi phát cách đây 2 giờ sau khi gắng sức, đau như bóp nghẹt sau xương ức, lan lên vai trái. Kèm vã mồ hôi, khó thở. Đã dùng 1 viên nitroglycerin ngậm dưới lưỡi nhưng không đỡ."),
@@ -32,11 +32,15 @@ def render_form():
 
 def render_results():
     """Hiển thị kết quả bệnh án và nút sao chép."""
-    if st.session_state.ket_qua_benh_an:
+    if st.session_state.get("ket_qua_benh_an"):
         st.header("Bệnh án được AI soạn thảo:")
         
         if "Lỗi:" not in st.session_state.ket_qua_benh_an:
-            if st.button("Sao chép nội dung Bệnh án"):
+            # THAY ĐỔI: Thêm một key định danh cho nút bấm
+            st.button("Sao chép nội dung Bệnh án", key="copy_button")
+            
+            # THAY ĐỔI: Dùng hàm mới để kiểm tra và thực hiện sao chép
+            if button_did_it_work("copy_button"):
                 copy_to_clipboard(st.session_state.ket_qua_benh_an)
                 st.success("Đã sao chép vào clipboard!")
 
