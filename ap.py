@@ -1,6 +1,5 @@
 import streamlit as st
 import google.generativeai as genai
-# TỐI ƯU: Bỏ pyperclip và thêm thư viện mới
 from streamlit_js_eval import streamlit_js_eval, copy_to_clipboard
 
 # --- CẤU HÌNH BAN ĐẦU ---
@@ -34,7 +33,7 @@ def tao_prompt(data):
 @st.cache_data(show_spinner=False)
 def soan_thao_benh_an(_prompt):
     """Hàm gọi API Gemini để soạn bệnh án, kết quả sẽ được cache lại."""
-    # (Giữ nguyên hàm gọi AI của bạn)
+    # (Gi-ữ nguyên hàm gọi AI của bạn)
     try:
         model = genai.GenerativeModel('gemini-2.5-pro') 
         response = model.generate_content(_prompt)
@@ -48,7 +47,6 @@ def soan_thao_benh_an(_prompt):
 
 # --- GIAO DIỆN NHẬP LIỆU ---
 with st.form("benh_an_form"):
-    # (Toàn bộ phần form nhập liệu giữ nguyên như cũ)
     st.header("1. Thông tin bệnh nhân")
     col1, col2, col3 = st.columns(3)
     benh_nhan_data = {
@@ -57,13 +55,15 @@ with st.form("benh_an_form"):
         "gioi_tinh": col3.selectbox("Giới tính", ["Nam", "Nữ", "Khác"]),
         "nghe_nghiep": st.text_input("Nghề nghiệp", "Công nhân"),
     }
+
     st.header("2. Thông tin y khoa")
+    # **KHÔI PHỤC LẠI NỘI DUNG GIỚI THIỆU CHI TIẾT**
     benh_nhan_data.update({
         "ly_do_vao_vien": st.text_area("Lý do vào viện", "Đau ngực trái dữ dội, khó thở."),
-        "benh_su": st.text_area("Bệnh sử", "Bệnh khởi phát cách đây 2 giờ..."),
-        "tien_can": st.text_area("Tiền căn", "Tăng huyết áp 10 năm..."),
-        "luoc_qua_cac_co_quan": st.text_area("Lược qua các cơ quan", "Hô hấp: không ho..."),
-        "kham_thuc_the": st.text_area("Khám thực thể", "Sinh hiệu: Mạch 88..."),
+        "benh_su": st.text_area("Bệnh sử", "Bệnh khởi phát cách đây 2 giờ sau khi gắng sức, đau như bóp nghẹt sau xương ức, lan lên vai trái. Kèm vã mồ hôi, khó thở. Đã dùng 1 viên nitroglycerin ngậm dưới lưỡi nhưng không đỡ."),
+        "tien_can": st.text_area("Tiền căn", "Tăng huyết áp 10 năm, đái tháo đường type 2, hút thuốc lá 20 gói-năm."),
+        "luoc_qua_cac_co_quan": st.text_area("Lược qua các cơ quan", "Hô hấp: không ho, không khó thở. Tiêu hóa: ăn uống được, không đau bụng, tiêu tiểu bình thường. Thần kinh: không đau đầu, không yếu liệt. Cơ xương khớp: không đau mỏi."),
+        "kham_thuc_the": st.text_area("Khám thực thể", "Sinh hiệu: Mạch 88 lần/phút, Huyết áp 150/90 mmHg, Nhiệt độ 37°C, Nhịp thở 20 lần/phút. Khám tim: T1, T2 đều rõ, không âm thổi. Khám phổi: Rì rào phế nang êm dịu, không rale."),
     })
     submitted = st.form_submit_button("⚕️ Soạn thảo Bệnh án")
 
@@ -76,12 +76,9 @@ if submitted:
 if st.session_state.ket_qua_benh_an:
     st.header("Bệnh án được AI soạn thảo:")
     
-    # TỐI ƯU QUAN TRỌNG: Thay thế logic nút bấm cũ
     if "Lỗi:" not in st.session_state.ket_qua_benh_an:
-        # Khi nút này được nhấn, nó sẽ gọi hàm copy_to_clipboard
         if st.button("Sao chép nội dung Bệnh án"):
             copy_to_clipboard(st.session_state.ket_qua_benh_an)
             st.success("Đã sao chép vào clipboard!")
 
-    # Hiển thị nội dung bệnh án
     st.markdown(st.session_state.ket_qua_benh_an)
