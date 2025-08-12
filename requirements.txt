@@ -1,5 +1,6 @@
 streamlit
 
 google-generativeai
-streamlit-js-eval
+streamlit_js_eval
+
 
