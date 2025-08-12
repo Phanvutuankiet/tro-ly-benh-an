@@ -16,12 +16,13 @@ def render_form():
         }
 
         st.header("2. Thông tin y khoa")
+        # **KHÔI PHỤC LẠI NỘI DUNG GIỚI THIỆU CHI TIẾT**
         benh_nhan_data.update({
             "ly_do_vao_vien": st.text_area("Lý do vào viện", "Đau ngực trái dữ dội, khó thở."),
-            "benh_su": st.text_area("Bệnh sử", "Bệnh khởi phát cách đây 2 giờ..."),
-            "tien_can": st.text_area("Tiền căn", "Tăng huyết áp 10 năm..."),
-            "luoc_qua_cac_co_quan": st.text_area("Lược qua các cơ quan", "Hô hấp: không ho..."),
-            "kham_thuc_the": st.text_area("Khám thực thể", "Sinh hiệu: Mạch 88..."),
+            "benh_su": st.text_area("Bệnh sử", "Bệnh khởi phát cách đây 2 giờ sau khi gắng sức, đau như bóp nghẹt sau xương ức, lan lên vai trái. Kèm vã mồ hôi, khó thở. Đã dùng 1 viên nitroglycerin ngậm dưới lưỡi nhưng không đỡ."),
+            "tien_can": st.text_area("Tiền căn", "Tăng huyết áp 10 năm, đái tháo đường type 2, hút thuốc lá 20 gói-năm."),
+            "luoc_qua_cac_co_quan": st.text_area("Lược qua các cơ quan", "Hô hấp: không ho, không khó thở. Tiêu hóa: ăn uống được, không đau bụng, tiêu tiểu bình thường. Thần kinh: không đau đầu, không yếu liệt. Cơ xương khớp: không đau mỏi."),
+            "kham_thuc_the": st.text_area("Khám thực thể", "Sinh hiệu: Mạch 88 lần/phút, Huyết áp 150/90 mmHg, Nhiệt độ 37°C, Nhịp thở 20 lần/phút. Khám tim: T1, T2 đều rõ, không âm thổi. Khám phổi: Rì rào phế nang êm dịu, không rale."),
         })
 
         submitted = st.form_submit_button("⚕️ Soạn thảo Bệnh án")
