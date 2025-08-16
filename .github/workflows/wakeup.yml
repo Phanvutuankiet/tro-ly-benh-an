@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send request to app
-        run: curl -s https://tro-ly-benh-an-askooddzgsysf2vk5cwui5.streamlit.app/ > /dev/null
+        run: curl -L --fail "https://tro-ly-benh-an-askooddzgsysf2vk5cwui5.streamlit.app" || exit 0
